@@ -1,5 +1,5 @@
-Role Name
-=========
+TYPO3 CMS Deployment via Ansible
+================================
 
 A role that uses ansible's deploy_helper (introduced in Ansible 2.0) to ease deploying of TYPO3 CMS projects.
 
