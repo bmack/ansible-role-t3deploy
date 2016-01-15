@@ -1,0 +1,51 @@
+---
+
+# The deployment main path
+# Under this directory, "releases" and "shared" folders are
+# created, as well as the "current" link to the project
+t3deploy_base_path: /var/www/
+
+
+# The GIT repository URL to use for cloning
+t3deploy_repository_url: ssh://git@github.com:bmack/ansible-role-t3deploy.git
+
+# Could be a tag, branch or sha1
+# Should easily be replaceable for different test or production systems
+t3deploy_repository_version: master
+
+# Optionally the path to the site root if your TYPO3 project is
+# installed with the composer web path option.
+t3deploy_web_directory: web/
+
+# Set up the following shared directories which will be symlinked
+# from the shared/ folder into the new release
+t3deploy_shared_directories:
+  - "{{ t3deploy_web_directory }}fileadmin"
+  - "{{ t3deploy_web_directory }}uploads"
+
+# Check if the following directories exist and are writable
+t3deploy_writeable_directories:
+  - "{{ t3deploy_web_directory }}typo3temp"
+
+# Some hosters have problems using symlinks for the index.php file.
+# However TYPO3 symlinks index.php by default to typo3_src/index.php
+# If enabled, this file is copied at each deployment stage and
+# the smylink is removed.
+t3deploy_create_index_file: false
+
+# Whether the composer dependency manager should run
+t3deploy_composer_enabled: true
+
+# Path to the composer file
+t3deploy_composer_command: composer.phar
+
+# The TYPO3 Context that should be used
+t3deploy_typo3_context: Production
+
+# Items that should be removed from the directory once
+t3deploy_cleanup_items:
+  - ansible.cfg
+  - build/
+  - bootstrap.sh
+  - README.md
+  - Vagrantfile

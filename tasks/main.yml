@@ -1,0 +1,92 @@
+---
+
+# Gather facts
+- name: Initialize the deploy root and gather facts
+  deploy_helper:
+    path: "{{ t3deploy_base_path }}"
+
+
+# Run git clone
+- name: Clone the application into the new release folder, which is created now
+  git:
+    repo: "{{ t3deploy_repository_url }}"
+    dest: "{{ deploy_helper.new_release_path }}"
+    version: "{{ t3deploy_repository_version }}"
+    accept_hostkey: "yes"
+
+
+# Remove files and folders from the git repository
+- name: Remove files from the repository that aren't needed for the production
+  file:
+    path: "{{ deploy_helper.new_release_path }}/{{ item }}"
+    state: absent
+  with_items: "{{ t3deploy_cleanup_items }}"
+  when: t3deploy_cleanup_items
+
+
+# Create an empty file to track the state, hopefully the deploy_helper takes care of that at some point
+- name: Add an "unfinished file", to allow cleanup on when finalizing
+  file:
+    path: "{{ deploy_helper.new_release_path }}/{{ deploy_helper.unfinished_filename }}"
+    state: touch
+
+
+# Run dependency manager
+- name: Run composer
+  command: "{{ t3deploy_composer_command }} install --working-dir={{ deploy_helper.new_release_path }}"
+  when: t3deploy_composer_enabled
+
+
+# Create shared folders (only once)
+- name: Create shared folders if not existant
+  file:
+    path: "{{ deploy_helper.shared_path }}/{{ item }}"
+    state: directory
+  with_items: "{{ t3deploy_shared_directories }}"
+  when: t3deploy_shared_directories
+
+
+# Symlinking shared folders
+- name: Add symlinks from the new release to the shared folder
+  file:
+    path: "{{ deploy_helper.new_release_path }}/{{ item }}"
+    src: "{{ deploy_helper.shared_path }}/{{ item }}"
+    state: link
+  with_items: "{{ t3deploy_shared_directories }}"
+  when: t3deploy_shared_directories
+
+
+# Create directories that must be writeable
+- name: Create the writable directories
+  file:
+    path: "{{ deploy_helper.new_release_path }}/{{ item }}"
+    state: directory
+    mode: 0775
+  with_items: "{{ t3deploy_writeable_directories }}"
+  when: t3deploy_writeable_directories
+
+
+# Some systems (e.g. df) don't allow symlinking of files
+- name: Create index.php as file instead of symlink
+  command: "{{ item }}"
+  when: t3deploy_create_index_file
+  with_items:
+    - rm {{ deploy_helper.new_release_path }}/{{ t3deploy_web_directory }}index.php
+    - cp {{ deploy_helper.new_release_path }}/{{ t3deploy_web_directory }}typo3_src/index.php {{ deploy_helper.new_release_path }}/{{ t3deploy_web_directory }}index.php
+
+
+# Create TYPO3_CONTEXT file
+- name: Create a TYPO3_CONTEXT file, used for EXT:environment
+  command: echo "{{ t3deploy_typo3_context }}" > {{ deploy_helper.new_release_path }}/TYPO3_CONTEXT
+
+
+# Change the current/ symlink, "go" live
+- name: Finalize the deploy, removing the unfinished file and switching the symlink
+  deploy_helper:
+    path: "{{ t3deploy_base_path }}"
+    release: "{{ deploy_helper.new_release }}"
+    state: finalize
+    clean: false
+
+
+# @todo: clear caches?
