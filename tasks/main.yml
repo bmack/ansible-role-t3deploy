@@ -44,6 +44,8 @@
     state: directory
   with_items: "{{ t3deploy_shared_directories }}"
   when: t3deploy_shared_directories
+  # ignore errors because a shared folder could e.g. be a symlink itself
+  ignore_errors: true
 
 
 # Symlinking shared folders
