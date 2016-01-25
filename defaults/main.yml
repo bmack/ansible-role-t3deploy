@@ -23,6 +23,9 @@ t3deploy_shared_directories:
   - "{{ t3deploy_web_directory }}fileadmin"
   - "{{ t3deploy_web_directory }}uploads"
 
+# Shared files will also be linked, but creating them will not be attempted.
+t3deploy_shared_files: []
+
 # Check if the following directories exist and are writable
 t3deploy_writeable_directories:
   - "{{ t3deploy_web_directory }}typo3temp"
