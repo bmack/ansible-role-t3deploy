@@ -44,6 +44,8 @@
     state: directory
   with_items: "{{ t3deploy_shared_directories }}"
   when: t3deploy_shared_directories
+  # ignore errors because a shared folder could e.g. be a symlink itself
+  ignore_errors: true
 
 
 # Symlinking shared folders
@@ -52,7 +54,9 @@
     path: "{{ deploy_helper.new_release_path }}/{{ item }}"
     src: "{{ deploy_helper.shared_path }}/{{ item }}"
     state: link
-  with_items: "{{ t3deploy_shared_directories }}"
+  with_flattened:
+    - t3deploy_shared_directories
+    - t3deploy_shared_files
   when: t3deploy_shared_directories
 
 
