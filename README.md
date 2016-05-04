@@ -18,7 +18,11 @@ Available variables are listed below, along with default values (see `defaults/m
 The deployment main path. Inside this directory, "releases" and "shared" folders are created, as well as the
 "current" link to the project.
 
-    t3deploy_repository_url: ssh://git@github.com:bmack/ansible-role-t3deploy.git
+    t3deploy_repository_url: ssh://git@github.com/bmack/ansible-role-t3deploy.git
+    
+Or
+
+    t3_deploy_repository_url: git@github.com:bmack/ansible-role-t3deploy.git
 
 The GIT repository URL to use for cloning the project on the target systems.
 
