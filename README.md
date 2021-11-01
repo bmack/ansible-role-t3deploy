@@ -1,6 +1,8 @@
 TYPO3 CMS Deployment via Ansible
 ================================
 
+Note: this is a demo repository which showed an example on how to use `deploy_helper` from Ansible, but was never used in production.
+
 A role that uses ansible's deploy_helper (introduced in Ansible 2.0) to ease deploying of TYPO3 CMS projects.
 
 Requirements
